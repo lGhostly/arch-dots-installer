@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==========================================
-# Definición de Colores para hacerlo estético
+# Definición de Colores
 # ==========================================
 MAGENTA='\033[1;35m'
 CYAN='\033[1;36m'
@@ -38,7 +38,7 @@ sudo -v
 
 # 1. Actualización y Dependencias Base
 print_step "Actualizando el sistema e instalando base-devel, git y stow..."
-sudo pacman -Syu --needed base-devel git stow --noconfirm
+sudo pacman -Syu --needed --noconfirm base-devel git stow
 print_success "Sistema base listo."
 
 # 2. Instalación de Yay (AUR Helper)
@@ -57,7 +57,7 @@ fi
 # 3. Instalación de Paquetes Oficiales
 print_step "Instalando paquetes de los repositorios oficiales..."
 if [ -f "pkglist.txt" ]; then
-    sudo pacman -S --needed - < pkglist.txt --noconfirm
+    sudo pacman -S --needed --noconfirm - < pkglist.txt
     print_success "Paquetes oficiales instalados."
 else
     print_warning "No se encontró pkglist.txt, saltando..."
@@ -66,7 +66,7 @@ fi
 # 4. Instalación de Paquetes del AUR
 print_step "Instalando paquetes del AUR..."
 if [ -f "aurlist.txt" ]; then
-    yay -S --needed - < aurlist.txt --noconfirm
+    yay -S --needed --noconfirm - < aurlist.txt
     print_success "Paquetes del AUR instalados."
 else
     print_warning "No se encontró aurlist.txt, saltando..."
@@ -81,17 +81,29 @@ if [ -d "$DOTS_DIR" ]; then
     cd "$DOTS_DIR"
     git pull
 else
-    # AQUÍ CAMBIAS LA URL POR LA TUYA DE GITHUB
-    git clone https://github.com/Ghostly/arch-dots.git "$DOTS_DIR"
+    # Corregido con el usuario exacto de tus logs
+    git clone https://github.com/lGhostly/arch-dots.git "$DOTS_DIR"
     print_success "Repositorio clonado con éxito."
 fi
 
-# 6. Aplicar configuraciones con GNU Stow
+# 6. Preparar entorno para Stow
+print_step "Preparando el entorno para evitar conflictos..."
+mkdir -p "$HOME/.config"
+
+# Stow fallará si estos archivos ya existen por defecto en una instalación limpia.
+# Esto los respalda añadiendo ".bak" al final.
+for file in ".bashrc" ".bash_profile" ".zshrc"; do
+    if [ -f "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
+        mv "$HOME/$file" "$HOME/${file}.bak"
+        echo -e "  ${YELLOW}↳ Respaldo creado: ${file} -> ${file}.bak${NC}"
+    fi
+done
+
+# 7. Aplicar configuraciones con GNU Stow
 print_step "Generando enlaces simbólicos con GNU Stow..."
 cd "$DOTS_DIR"
 
 # Lista de las carpetas que SI quieres instalar
-# Si hay alguna carpeta en arch-dots que no pongas aquí, Stow la ignorará
 STOW_FOLDERS=(
     "bash"
     "zsh"
@@ -108,6 +120,7 @@ STOW_FOLDERS=(
     "waypaper"
 )
 
+# copia cada carpeta de configuración al directorio home usando stow
 for folder in "${STOW_FOLDERS[@]}"; do
     if [ -d "$folder" ]; then
         stow -R "$folder"
