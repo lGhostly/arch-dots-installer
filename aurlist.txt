@@ -1,0 +1,10 @@
+ani-cli
+peaclock
+python-sounddevice
+spotify
+vesktop-bin
+visual-studio-code-bin
+waypaper
+yay-bin
+yay-bin-debug
+zen-browser-bin
