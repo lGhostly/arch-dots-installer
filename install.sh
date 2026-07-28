@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==========================================
-# Definición de Colores
+# Definición de Colores para hacerlo estético
 # ==========================================
 MAGENTA='\033[1;35m'
 CYAN='\033[1;36m'
@@ -81,7 +81,6 @@ if [ -d "$DOTS_DIR" ]; then
     cd "$DOTS_DIR"
     git pull
 else
-    # Corregido con el usuario exacto de tus logs
     git clone https://github.com/lGhostly/arch-dots.git "$DOTS_DIR"
     print_success "Repositorio clonado con éxito."
 fi
@@ -90,8 +89,6 @@ fi
 print_step "Preparando el entorno para evitar conflictos..."
 mkdir -p "$HOME/.config"
 
-# Stow fallará si estos archivos ya existen por defecto en una instalación limpia.
-# Esto los respalda añadiendo ".bak" al final.
 for file in ".bashrc" ".bash_profile" ".zshrc"; do
     if [ -f "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
         mv "$HOME/$file" "$HOME/${file}.bak"
@@ -103,7 +100,6 @@ done
 print_step "Generando enlaces simbólicos con GNU Stow..."
 cd "$DOTS_DIR"
 
-# Lista de las carpetas que SI quieres instalar
 STOW_FOLDERS=(
     "bash"
     "zsh"
@@ -120,7 +116,6 @@ STOW_FOLDERS=(
     "waypaper"
 )
 
-# copia cada carpeta de configuración al directorio home usando stow
 for folder in "${STOW_FOLDERS[@]}"; do
     if [ -d "$folder" ]; then
         stow -R "$folder"
@@ -130,7 +125,29 @@ for folder in "${STOW_FOLDERS[@]}"; do
     fi
 done
 
+# 8. Instalación Opcional de Fondos de Pantalla
+print_step "Fondos de Pantalla"
+# Preguntamos al usuario y leemos su respuesta
+read -p "$(echo -e "  ${CYAN}¿Deseas instalar los fondos de pantalla? (s/n): ${NC}")" install_walls
+
+# Si la respuesta es 's' o 'S'
+if [[ "$install_walls" =~ ^[sS]$ ]]; then
+    # Creamos el directorio destino por si no existe
+    mkdir -p "$HOME/assets/Images/wallpapers"
+    
+    # Comprobamos si la ruta existe dentro de arch-dots
+    if [ -d "assets/Images/wallpapers" ]; then
+        # Copiamos los archivos directamente
+        cp -r assets/Images/wallpapers/* "$HOME/assets/Images/wallpapers/"
+        echo -e "  ${GREEN}↳ Fondos de pantalla instalados en ~/assets/Images/wallpapers.${NC}"
+    else
+        echo -e "  ${RED}↳ No se encontró la ruta 'assets/Images/wallpapers' en el repositorio.${NC}"
+    fi
+else
+    echo -e "  ${YELLOW}↳ Instalación de fondos omitida.${NC}"
+fi
+
 echo -e "\n${MAGENTA}==========================================${NC}"
-echo -e "${GREEN} 🎉 ¡INSTALACIÓN COMPLETADA CON ÉXITO! 🎉 ${NC}"
+echo -e "${GREEN}  ¡INSTALACIÓN COMPLETADA CON ÉXITO!  ${NC}"
 echo -e "${MAGENTA}==========================================${NC}"
 echo -e "Por favor, reinicia tu sesión para aplicar todos los cambios.\n"
