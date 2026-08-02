@@ -7,6 +7,7 @@ bluez
 bluez-utils
 breeze-gtk
 brightnessctl
+btop
 calf
 cava
 cliphist
@@ -45,6 +46,7 @@ noto-fonts-cjk
 noto-fonts-emoji
 ntfs-3g
 nwg-look
+otf-font-awesome
 pamixer
 papirus-icon-theme
 pavucontrol
@@ -59,15 +61,18 @@ qt6-imageformats
 qt6-virtualkeyboard
 qt6ct
 rofi
+rsync
 sddm
 slurp
 sof-firmware
 starship
 sudo
 swappy
+swaync
 thunar
 thunar-archive-plugin
 thunar-volman
+ttf-jetbrains-mono-nerd
 ttf-liberation
 tumbler
 udisks2
@@ -76,6 +81,7 @@ waybar
 wireplumber
 wl-clipboard
 xdg-desktop-portal-hyprland
+yad
 yazi
 zram-generator
 zsh-autosuggestions
